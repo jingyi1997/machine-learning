@@ -1,0 +1,82 @@
+clear;
+%label for dataset1
+label_1 = unidrnd(3,1,1000);
+%label for dataset2
+alphabet = [1 2 3]; prob = [0.8 0.1 0.1];
+label_2 = randsrc(1,1000,[alphabet; prob]) 
+dataset1= zeros(1000,2);
+dataset2= zeros(1000,2);
+index = 1:1000
+%numbers for different labels in dataset1
+set1_1_num = sum(label_1==1);
+set1_2_num = sum(label_1==2);
+set1_3_num = sum(label_1==3);
+%numbers for different labels in dataset2
+set2_1_num = sum(label_2==1);
+set2_2_num = sum(label_2==2);
+set2_3_num = sum(label_2==3);
+index1_1= index(label_1==1);
+index1_2= index(label_1==2);
+index1_3= index(label_1==3);
+index2_1= index(label_2==1);
+index2_2= index(label_2==2);
+index2_3= index(label_2==3);
+%generate the data
+mean_matrix = [[1,1];[4,4];[8,1]];
+cov_matrix = [1,0;0,1];
+dataset1(index1_1,:)= mvnrnd(mean_matrix(1,:),cov_matrix,set1_1_num);
+dataset1(index1_2,:)= mvnrnd(mean_matrix(2,:),cov_matrix,set1_2_num);
+dataset1(index1_3,:)= mvnrnd(mean_matrix(3,:),cov_matrix,set1_3_num);
+dataset2(index2_1,:)= mvnrnd([1,1],[1,0;0,1],set2_1_num);
+dataset2(index2_2,:)= mvnrnd([4,4],[1,0;0,1],set2_2_num);
+dataset2(index2_3,:)= mvnrnd([8,1],[1,0;0,1],set2_3_num);
+
+%for label 1£¬2£¬3 in dataset 1, calulate the estimated mean value and
+%covarience matrix
+dataset1_1 = dataset1(index1_1,:);
+mean1_1 = [mean(dataset1_1(:,1)),mean(dataset1_1(:,2))];
+cov1_1 = cov(dataset1_1(:,1),dataset1_1(:,2));
+dataset1_2 = dataset1(index1_2,:);
+mean1_2 = [mean(dataset1_2(:,1)),mean(dataset1_2(:,2))];
+cov1_2 = cov(dataset1_2(:,1),dataset1_2(:,2));
+dataset1_3 = dataset1(index1_3,:);
+mean1_3 = [mean(dataset1_3(:,1)),mean(dataset1_3(:,2))];
+cov1_3 = cov(dataset1_3(:,1),dataset1_3(:,2));
+%for label 1£¬2£¬3 in dataset 2, calulate the estimated mean value and
+%covarience matrix
+dataset2_1 = dataset2(index2_1,:);
+mean2_1 = [mean(dataset2_1(:,1)),mean(dataset2_1(:,2))];
+cov2_1 = cov(dataset2_1(:,1),dataset2_1(:,2));
+dataset2_2 = dataset2(index2_2,:);
+mean2_2 = [mean(dataset2_2(:,1)),mean(dataset2_2(:,2))];
+cov2_2 = cov(dataset2_2(:,1),dataset2_2(:,2));
+dataset2_3 = dataset2(index2_3,:);
+mean2_3 = [mean(dataset2_3(:,1)),mean(dataset2_3(:,2))];
+cov2_3 = cov(dataset2_3(:,1),dataset2_3(:,2));
+%to do : plot the dataset 
+figure;
+plot(dataset1_1(:,1),dataset1_1(:,2),'*');
+hold on;
+plot(dataset1_2(:,1),dataset1_2(:,2),'*');
+hold on;
+plot(dataset1_3(:,1),dataset1_3(:,2),'*');
+figure;
+plot(dataset2_1(:,1),dataset2_1(:,2),'*');
+hold on;
+plot(dataset2_2(:,1),dataset2_2(:,2),'*');
+hold on;
+plot(dataset2_3(:,1),dataset2_3(:,2),'*');
+%Implement a Bayesian Classifier for the dataset
+%for every sample in the training set
+%prior_prob stores the prior probability for each class
+prior_prob_1 = [1/3;1/3;1/3];
+prior_prob_2 = [0.8;0.1;0.1];
+bayesian_pred1 = bayesian(dataset1,prior_prob_1,mean_matrix);
+bayesian_accu1=mean(bayesian_pred1'==label_1);
+bayesian_pred2 = bayesian(dataset2,prior_prob_2,mean_matrix);
+bayesian_accu2=mean(bayesian_pred2'==label_2);
+%Implement a  Euclidean Classifier for the dataset
+min_pred1 = min_distance(dataset1,mean_matrix);
+min_accu1=mean(min_pred1'==label_1);
+min_pred2 = min_distance(dataset2,mean_matrix);
+min_accu2=mean(min_pred2'==label_2);
